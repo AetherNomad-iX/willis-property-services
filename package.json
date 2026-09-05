@@ -1,0 +1,13 @@
+{
+  "name": "willis-property-services",
+  "private": true,
+  "description": "Willis Property Services — Jacksonville handyman, labor, and property support",
+  "scripts": {
+    "build": "node scripts/build-site.mjs",
+    "deploy": "npm run build && wrangler deploy",
+    "start": "npm run build && wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.129.0"
+  }
+}
