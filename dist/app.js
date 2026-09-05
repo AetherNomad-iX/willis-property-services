@@ -1,12 +1,28 @@
 const EMAIL="Kaleb@WillisPropertyServices.com";
 const PHONE="9043124930";
-document.querySelectorAll(".menu-btn").forEach((btn)=>{
-  btn.addEventListener("click",()=>{
-    const nav=btn.closest("header").querySelector(".nav-mobile");
-    const open=nav.hasAttribute("hidden");
-    if(open) nav.removeAttribute("hidden"); else nav.setAttribute("hidden","");
+const ICON_MENU='<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+const ICON_CLOSE='<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+document.querySelectorAll("header").forEach((header)=>{
+  const btn=header.querySelector(".menu-btn");
+  const nav=header.querySelector(".nav-mobile");
+  if(!btn||!nav) return;
+  const setOpen=(open)=>{
+    nav.classList.toggle("is-open", open);
     btn.setAttribute("aria-expanded", String(open));
     btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    btn.innerHTML = open ? ICON_CLOSE : ICON_MENU;
+  };
+  btn.addEventListener("click",(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    setOpen(!nav.classList.contains("is-open"));
+  });
+  nav.querySelectorAll("a").forEach((a)=>a.addEventListener("click",()=>setOpen(false)));
+  document.addEventListener("click",(e)=>{
+    if(!header.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="Escape") setOpen(false);
   });
 });
 document.querySelectorAll(".quote-form").forEach((form)=>{

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, Phone, X } from "lucide-react";
 import { BrandLockup } from "@/components/logo";
@@ -9,6 +9,25 @@ import { cn } from "@/lib/utils";
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  function toggleMenu(event: SyntheticEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    setOpen((value) => !value);
+  }
 
   return (
     <header className="sticky top-0 z-40 bg-navy text-paper">
@@ -53,10 +72,11 @@ export function SiteHeader() {
           </Button>
           <button
             type="button"
-            className="inline-flex size-11 items-center justify-center rounded-md text-paper lg:hidden"
+            className="relative z-50 inline-flex size-11 touch-manipulation items-center justify-center rounded-md text-paper lg:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
+            aria-controls="mobile-nav"
+            onClick={toggleMenu}
           >
             {open ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
@@ -65,28 +85,42 @@ export function SiteHeader() {
       <div className="h-px bg-red" />
 
       {open ? (
-        <div className="border-t border-paper/10 bg-navy-deep lg:hidden">
-          <nav className="mx-auto flex max-w-6xl flex-col px-4 py-3" aria-label="Mobile">
-            {NAV.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className="flex min-h-12 items-center font-display text-base uppercase tracking-[0.16em] text-paper"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <a
-              href={SITE.phoneHref}
-              className="mt-2 flex min-h-12 items-center gap-2 font-display text-base uppercase tracking-[0.16em] text-paper"
-            >
-              <Phone className="size-4" />
-              Call {SITE.phoneDisplay}
-            </a>
-          </nav>
-        </div>
+        <button
+          type="button"
+          className="fixed inset-0 z-30 bg-navy-deep/50 lg:hidden"
+          aria-label="Close menu"
+          onClick={() => setOpen(false)}
+        />
       ) : null}
+
+      <div
+        id="mobile-nav"
+        hidden={!open}
+        className={cn(
+          "relative z-40 border-t border-paper/10 bg-navy-deep lg:hidden",
+          open ? "block" : "hidden",
+        )}
+      >
+        <nav className="mx-auto flex max-w-6xl flex-col px-4 py-3" aria-label="Mobile">
+          {NAV.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={() => setOpen(false)}
+              className="flex min-h-12 items-center font-display text-base uppercase tracking-[0.16em] text-paper"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <a
+            href={SITE.phoneHref}
+            className="mt-2 flex min-h-12 items-center gap-2 font-display text-base uppercase tracking-[0.16em] text-paper"
+          >
+            <Phone className="size-4" />
+            Call {SITE.phoneDisplay}
+          </a>
+        </nav>
+      </div>
     </header>
   );
 }
